@@ -192,7 +192,7 @@ int		find_swipe(char **matrix, char obstacle, int x, int y, int swipe)
 	int i;
 	int j;
 
-	if (matrix[0][x + 1 + swipe] && matrix[y + 1 + swipe])
+	if (matrix[0][x + 1 + swipe] && matrix[y + 1 + swipe] && matrix[y][x] != obstacle)
 	{
 		i = y;
 		while (i < y + 1 + swipe)
@@ -203,68 +203,79 @@ int		find_swipe(char **matrix, char obstacle, int x, int y, int swipe)
 		}
 
 		j = x;
-		while (j < x + 1 + swipe)
+		while (j <= x + 1 + swipe)
 		{
 			if (matrix[i][j] == obstacle)
 				return swipe;
 			j++;
 		}
-
 		swipe++;
 		return (find_swipe(matrix, obstacle, x, y, swipe));
 	}
-	else if (matrix[y][x] == obstacle)
-	{
-		return swipe;
-	}
 	else
-	{
 		return swipe;
-	}
 }
 
-char	**solve_matrix(char **matrix, t_binfo binfo)
+t_snap	find_snapshot(char **matrix, t_binfo binfo)
 {
 	t_snap			snapshot;
 	unsigned int	i;
 	int				j;
 	int				swipe;
-	int				count;
 
-	count = 0;
-
-	// i = 0;
-	// j = 5;
-	// snapshot.x = j;
-	// snapshot.y = i;
-	// snapshot.swipe = find_swipe(matrix, binfo.empty, j, i, 0);
-	// printf("Swipe: %d\n", snapshot.swipe);
-
+	snapshot.x = 0;
+	snapshot.y = 0;
 	snapshot.swipe = 0;
-
 	i = 0;
-	while (i < binfo.lines)
+	while (i < binfo.lines - 1)
 	{
 		j = 0;
 		while (matrix[i][j] != '\0')
 		{
-			snapshot.x = j;
-			snapshot.y = i;
 			swipe = find_swipe(matrix, binfo.obstacle, j, i, 0);
 			if (swipe > snapshot.swipe)
 			{
+				snapshot.x = j;
+				snapshot.y = i;
 				snapshot.swipe = swipe;
 			}
-			// snapshot.swipe = find_swipe(matrix, binfo.empty, j, i, 0);
-			printf("Swipe: %d\n", swipe);
-			count++;
 			j++;
 		}
 		i++;
 	}
-	printf("Count: %d\n", count);
-	return matrix;
+	return (snapshot);
+}
 
+char **fill_matrix(char **matrix, t_snap snapshot, char full)
+{
+	int i;
+	int j;
+
+	i = snapshot.y;
+	while (i <= snapshot.y + snapshot.swipe)
+	{
+		j = snapshot.x;
+		while (j <= snapshot.x + snapshot.swipe)
+		{
+			matrix[i][j] = full;
+			j++;
+		}
+		i++;
+	}
+
+	return (matrix);
+}
+
+char	**solve_matrix(char **matrix, t_binfo binfo)
+{
+	t_snap			snapshot;
+
+	snapshot = find_snapshot(matrix, binfo);
+	printf("arr[%d][%d] = %d swipes\n", snapshot.y, snapshot.x, snapshot.swipe);
+
+	fill_matrix(matrix, snapshot, binfo.full);
+
+	return matrix;
 }
 
 int		main(int argc, char *argv[])
@@ -289,6 +300,8 @@ int		main(int argc, char *argv[])
 		
 		//validate(matrix);
 		matrix = solve_matrix(matrix, binfo);
+
+		print_board(matrix);
 
 		if (close(fd) < 0)
 		{
