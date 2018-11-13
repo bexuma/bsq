@@ -6,7 +6,7 @@
 /*   By: bmyrzata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/10 14:00:14 by bmyrzata          #+#    #+#             */
-/*   Updated: 2018/11/12 22:20:21 by bmyrzata         ###   ########.fr       */
+/*   Updated: 2018/11/12 23:38:12 by bmyrzata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,6 +180,93 @@ void	print_board(char **board)
 	}
 }
 
+typedef struct	s_snap
+{
+	int x;
+	int y;
+	int swipe;
+}				t_snap;
+
+int		find_swipe(char **matrix, char obstacle, int x, int y, int swipe)
+{
+	int i;
+	int j;
+
+	if (matrix[0][x + 1 + swipe] && matrix[y + 1 + swipe])
+	{
+		i = y;
+		while (i < y + 1 + swipe)
+		{
+			if (matrix[i][x + 1 + swipe] == obstacle)
+				return swipe;
+			i++;
+		}
+
+		j = x;
+		while (j < x + 1 + swipe)
+		{
+			if (matrix[i][j] == obstacle)
+				return swipe;
+			j++;
+		}
+
+		swipe++;
+		return (find_swipe(matrix, obstacle, x, y, swipe));
+	}
+	else if (matrix[y][x] == obstacle)
+	{
+		return swipe;
+	}
+	else
+	{
+		return swipe;
+	}
+}
+
+char	**solve_matrix(char **matrix, t_binfo binfo)
+{
+	t_snap			snapshot;
+	unsigned int	i;
+	int				j;
+	int				swipe;
+	int				count;
+
+	count = 0;
+
+	// i = 0;
+	// j = 5;
+	// snapshot.x = j;
+	// snapshot.y = i;
+	// snapshot.swipe = find_swipe(matrix, binfo.empty, j, i, 0);
+	// printf("Swipe: %d\n", snapshot.swipe);
+
+	snapshot.swipe = 0;
+
+	i = 0;
+	while (i < binfo.lines)
+	{
+		j = 0;
+		while (matrix[i][j] != '\0')
+		{
+			snapshot.x = j;
+			snapshot.y = i;
+			swipe = find_swipe(matrix, binfo.obstacle, j, i, 0);
+			if (swipe > snapshot.swipe)
+			{
+				snapshot.swipe = swipe;
+			}
+			// snapshot.swipe = find_swipe(matrix, binfo.empty, j, i, 0);
+			printf("Swipe: %d\n", swipe);
+			count++;
+			j++;
+		}
+		i++;
+	}
+	printf("Count: %d\n", count);
+	return matrix;
+
+}
+
 int		main(int argc, char *argv[])
 {
 	int		fd;
@@ -201,7 +288,7 @@ int		main(int argc, char *argv[])
         matrix = get_matrix(fd, binfo.lines);
 		
 		//validate(matrix);
-		//solve(matrix);
+		matrix = solve_matrix(matrix, binfo);
 
 		if (close(fd) < 0)
 		{
