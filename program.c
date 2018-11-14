@@ -6,7 +6,7 @@
 /*   By: bmyrzata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/10 14:00:14 by bmyrzata          #+#    #+#             */
-/*   Updated: 2018/11/12 23:38:12 by bmyrzata         ###   ########.fr       */
+/*   Updated: 2018/11/13 19:14:48 by bmyrzata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,16 +149,25 @@ char	**get_matrix(int fd, int lines)
 	{
 		j = 0;
 		if (elem == 0)
-			matrix[i] = malloc(sizeof(char) * (20));
-		else
-			matrix[i] = malloc(sizeof(char) * (elem + 1));
-		
-		while (read(fd, &c, 1) && c != '\n')
 		{
-			matrix[i][j] = c;
-			j++;
-			elem++;
+			matrix[i] = malloc(sizeof(char) * (200));
+			while (read(fd, &c, 1) && c != '\n')
+			{
+				matrix[i][j] = c;
+				j++;
+				elem++;
+			}
 		}
+		else
+		{
+			matrix[i] = malloc(sizeof(char) * (elem + 1));
+			while (read(fd, &c, 1) && c != '\n')
+			{
+				matrix[i][j] = c;
+				j++;
+			}
+		}
+		
 		matrix[i][j] = '\0';
 		i++;
 	}
@@ -308,6 +317,8 @@ int		main(int argc, char *argv[])
 			ft_putstr("close() failed\n");
 			return (1);
 		}
+
+		free(fline);
 	}
 
 	return (0);
