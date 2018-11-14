@@ -6,7 +6,7 @@
 /*   By: bmyrzata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/10 14:00:14 by bmyrzata          #+#    #+#             */
-/*   Updated: 2018/11/13 20:06:42 by bmyrzata         ###   ########.fr       */
+/*   Updated: 2018/11/13 20:51:52 by bmyrzata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -291,6 +291,8 @@ char **fill_matrix(char **matrix, t_snap snapshot, char full)
 	return (matrix);
 }
 
+
+
 char	**solve_matrix(char **matrix, t_binfo binfo)
 {
 	t_snap			snapshot;
@@ -303,39 +305,60 @@ char	**solve_matrix(char **matrix, t_binfo binfo)
 	return matrix;
 }
 
+void	ft_fputchar(int fd, char c)
+{
+	write(fd, &c, 1);
+}
+
 int		main(int argc, char *argv[])
 {
 	int		fd;
 	char	*fline;
 	char	**matrix;
 	t_binfo	binfo;
+	char	*filename;
+	char	c;
 
-	if (argc == 2)
+	if (argc == 1)
 	{
-		fd = open(argv[1], O_RDONLY);
+		filename = "42";
+		fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
 		if (fd == -1)
 		{
-			ft_putstr("open() failed\n");
+			ft_putstr("open() error\n");
 			return (1);
 		}
-
-		fline = get_fline(fd);
-		binfo = get_binfo(fline);
-        matrix = get_matrix(fd, binfo.lines);
-		
-		//validate(matrix);
-		matrix = solve_matrix(matrix, binfo);
-
-		print_board(matrix);
-
-		if (close(fd) < 0)
-		{
-			ft_putstr("close() failed\n");
-			return (1);
-		}
-
-		free(fline);
+		while(read(STDIN_FILENO, &c, 1) > 0)
+			ft_fputchar(fd, c);
 	}
+	else
+	{
+		filename = argv[1];
+	}
+
+	fd = open(filename, O_RDONLY);
+	if (fd == -1)
+	{
+		ft_putstr("open() failed\n");
+		return (1);
+	}
+
+	fline = get_fline(fd);
+	binfo = get_binfo(fline);
+	matrix = get_matrix(fd, binfo.lines);
+		
+	//validate(matrix);
+	matrix = solve_matrix(matrix, binfo);
+
+	print_board(matrix);
+
+	if (close(fd) < 0)
+	{
+		ft_putstr("close() failed\n");
+		return (1);
+	}
+
+	free(fline);
 
 	return (0);
 }
