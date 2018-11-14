@@ -6,7 +6,7 @@
 /*   By: bmyrzata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/10 14:00:14 by bmyrzata          #+#    #+#             */
-/*   Updated: 2018/11/13 19:14:48 by bmyrzata         ###   ########.fr       */
+/*   Updated: 2018/11/13 20:06:42 by bmyrzata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,41 +133,57 @@ t_binfo	get_binfo(char *fline)
 	return (binfo);
 }
 
+char	*ft_strcpy(char *dest, char *src, int length)
+{
+	int i;
+
+	i = 0;
+	while (i < length)
+	{
+		dest[i] = src[i];
+		i++;
+	}
+	return (dest);
+}
+
+char	*ft_realloc(char *str, char c, int width)
+{
+	char	*temp;
+
+	temp = malloc(sizeof(char) * (width + 1));
+	temp = ft_strcpy(temp, str, width - 1);
+	temp[width - 1] = c;
+	temp[width] = '\0';
+	return (temp);
+}
+
 char	**get_matrix(int fd, int lines)
 {
-	char **matrix;
-	int i;
-	int j;
-	char c;
-	int elem;
+	char	**matrix;
+	int		i;
+	int		j;
+	char	c;
+	int		width;
 
 	matrix = malloc(sizeof(char*) * (lines + 1));
-	
-	i = 0;
-	elem = 0;
+	width = 0;
+	matrix[0] = NULL;
+	while (read(fd, &c, 1) && c != '\n')
+	{
+		width++;
+		matrix[0] = ft_realloc(matrix[0], c, width);
+	}
+
+	i = 1;
 	while (i < lines)
 	{
 		j = 0;
-		if (elem == 0)
+		matrix[i] = malloc(sizeof(char) * (width + 1));
+		while (read(fd, &c, 1) && c != '\n')
 		{
-			matrix[i] = malloc(sizeof(char) * (200));
-			while (read(fd, &c, 1) && c != '\n')
-			{
-				matrix[i][j] = c;
-				j++;
-				elem++;
-			}
+			matrix[i][j] = c;
+			j++;
 		}
-		else
-		{
-			matrix[i] = malloc(sizeof(char) * (elem + 1));
-			while (read(fd, &c, 1) && c != '\n')
-			{
-				matrix[i][j] = c;
-				j++;
-			}
-		}
-		
 		matrix[i][j] = '\0';
 		i++;
 	}
