@@ -6,7 +6,7 @@
 /*   By: bmyrzata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/10 14:00:14 by bmyrzata          #+#    #+#             */
-/*   Updated: 2018/11/13 20:51:52 by bmyrzata         ###   ########.fr       */
+/*   Updated: 2018/11/14 14:47:09 by bmyrzata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,12 @@ typedef struct	s_binfo
 	char			obstacle;
 	char			full;
 }				t_binfo;
+
+typedef struct	s_busy
+{
+	int x;
+	int y;
+}				t_busy;
 
 void	ft_putchar(char c)
 {
@@ -264,7 +270,7 @@ t_snap	find_snapshot(char **matrix, t_binfo binfo)
 				snapshot.y = i;
 				snapshot.swipe = swipe;
 			}
-			j++;
+			j = j + 2 + swipe;
 		}
 		i++;
 	}
@@ -309,6 +315,7 @@ void	ft_fputchar(int fd, char c)
 {
 	write(fd, &c, 1);
 }
+
 
 int		main(int argc, char *argv[])
 {
