@@ -6,7 +6,7 @@
 /*   By: bmyrzata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/10 14:00:14 by bmyrzata          #+#    #+#             */
-/*   Updated: 2018/11/14 14:47:09 by bmyrzata         ###   ########.fr       */
+/*   Updated: 2018/11/14 15:38:13 by bmyrzata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,6 +222,7 @@ int		find_swipe(char **matrix, char obstacle, int x, int y, int swipe)
 {
 	int i;
 	int j;
+	int count;
 
 	if (matrix[0][x + 1 + swipe] && matrix[y + 1 + swipe] && matrix[y][x] != obstacle)
 	{
@@ -229,15 +230,39 @@ int		find_swipe(char **matrix, char obstacle, int x, int y, int swipe)
 		while (i < y + 1 + swipe)
 		{
 			if (matrix[i][x + 1 + swipe] == obstacle)
-				return swipe;
+			{
+				while (i >= y)
+				{
+					count = 1;
+					while (x + count + swipe >= x)
+					{
+						printf("arr[%d][%d]\n", i, x + count + swipe);
+						count--;
+					}
+					i--;
+				}
+				return (swipe);
+			}
 			i++;
 		}
 
 		j = x;
 		while (j <= x + 1 + swipe)
 		{
-			if (matrix[i][j] == obstacle)
-				return swipe;
+			if (matrix[i][j] == obstacle || matrix[i][j + 1] == '\0')
+			{
+				while (j >= x)
+				{
+					count = i;
+					while (count >= y)
+					{
+						printf("harr[%d][%d]\n", count, j);
+						count--;
+					}
+					j--;
+				}
+				return (swipe);
+			}
 			j++;
 		}
 		swipe++;
