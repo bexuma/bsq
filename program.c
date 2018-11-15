@@ -6,7 +6,7 @@
 /*   By: bmyrzata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/10 14:00:14 by bmyrzata          #+#    #+#             */
-/*   Updated: 2018/11/14 15:38:13 by bmyrzata         ###   ########.fr       */
+/*   Updated: 2018/11/14 16:20:36 by bmyrzata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,6 @@ typedef struct	s_binfo
 	char			obstacle;
 	char			full;
 }				t_binfo;
-
-typedef struct	s_busy
-{
-	int x;
-	int y;
-}				t_busy;
 
 void	ft_putchar(char c)
 {
@@ -211,6 +205,13 @@ void	print_board(char **board)
 	}
 }
 
+typedef struct	s_list
+{
+	int				x;
+	int				y;
+	struct s_list	*next;
+}				t_list;
+
 typedef struct	s_snap
 {
 	int x;
@@ -218,7 +219,30 @@ typedef struct	s_snap
 	int swipe;
 }				t_snap;
 
-int		find_swipe(char **matrix, char obstacle, int x, int y, int swipe)
+t_list	*add_coordinate(t_list *list, int x, int y)
+{
+	t_list *tmp;
+
+	tmp = (t_list*)malloc(sizeof(t_list) * 1);
+	if (tmp)
+	{
+		tmp->x = x;
+		tmp->y = y;
+		tmp->next = list;
+	}
+	return (tmp);
+}
+
+void	print_list(t_list *list)
+{
+	while (list)
+	{
+		printf("busy[%d][%d]\n", list->x, list->y);
+		list = list->next;
+	}
+}
+
+int		find_swipe(char **matrix, char obstacle, int x, int y, int swipe, t_list **list)
 {
 	int i;
 	int j;
@@ -236,7 +260,8 @@ int		find_swipe(char **matrix, char obstacle, int x, int y, int swipe)
 					count = 1;
 					while (x + count + swipe >= x)
 					{
-						printf("arr[%d][%d]\n", i, x + count + swipe);
+						*list = add_coordinate(*list, x + count + swipe, i);
+						//printf("arr[%d][%d]\n", i, x + count + swipe);
 						count--;
 					}
 					i--;
@@ -256,7 +281,8 @@ int		find_swipe(char **matrix, char obstacle, int x, int y, int swipe)
 					count = i;
 					while (count >= y)
 					{
-						printf("harr[%d][%d]\n", count, j);
+						*list = add_coordinate(*list, j, count);
+						//printf("harr[%d][%d]\n", count, j);
 						count--;
 					}
 					j--;
@@ -266,7 +292,7 @@ int		find_swipe(char **matrix, char obstacle, int x, int y, int swipe)
 			j++;
 		}
 		swipe++;
-		return (find_swipe(matrix, obstacle, x, y, swipe));
+		return (find_swipe(matrix, obstacle, x, y, swipe, list));
 	}
 	else
 		return swipe;
@@ -275,10 +301,12 @@ int		find_swipe(char **matrix, char obstacle, int x, int y, int swipe)
 t_snap	find_snapshot(char **matrix, t_binfo binfo)
 {
 	t_snap			snapshot;
+	t_list			*list;
 	unsigned int	i;
 	int				j;
 	int				swipe;
 
+	list = NULL;
 	snapshot.x = 0;
 	snapshot.y = 0;
 	snapshot.swipe = 0;
@@ -288,7 +316,7 @@ t_snap	find_snapshot(char **matrix, t_binfo binfo)
 		j = 0;
 		while (matrix[i][j] != '\0')
 		{
-			swipe = find_swipe(matrix, binfo.obstacle, j, i, 0);
+			swipe = find_swipe(matrix, binfo.obstacle, j, i, 0, &list);
 			if (swipe > snapshot.swipe)
 			{
 				snapshot.x = j;
@@ -299,6 +327,8 @@ t_snap	find_snapshot(char **matrix, t_binfo binfo)
 		}
 		i++;
 	}
+
+	print_list(list);
 	return (snapshot);
 }
 
