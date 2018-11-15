@@ -6,7 +6,7 @@
 /*   By: bmyrzata <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/10 14:00:14 by bmyrzata          #+#    #+#             */
-/*   Updated: 2018/11/14 16:20:36 by bmyrzata         ###   ########.fr       */
+/*   Updated: 2018/11/14 16:45:30 by bmyrzata         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -242,13 +242,28 @@ void	print_list(t_list *list)
 	}
 }
 
+int		list_contains(t_list *list, int x, int y)
+{
+	while (list)
+	{
+		if ((list->x == x) && (list->y == y))
+			return (1);
+		list = list->next;
+	}
+
+	return (0);
+}
+
 int		find_swipe(char **matrix, char obstacle, int x, int y, int swipe, t_list **list)
 {
 	int i;
 	int j;
 	int count;
 
-	if (matrix[0][x + 1 + swipe] && matrix[y + 1 + swipe] && matrix[y][x] != obstacle)
+	if (matrix[y][x] == obstacle)
+		return (-1);
+
+	if (matrix[0][x + 1 + swipe] && matrix[y + 1 + swipe])
 	{
 		i = y;
 		while (i < y + 1 + swipe)
@@ -307,28 +322,30 @@ t_snap	find_snapshot(char **matrix, t_binfo binfo)
 	int				swipe;
 
 	list = NULL;
-	snapshot.x = 0;
-	snapshot.y = 0;
-	snapshot.swipe = 0;
+	snapshot.swipe = -1;
 	i = 0;
-	while (i < binfo.lines - 1)
+	while (i < binfo.lines)
 	{
 		j = 0;
 		while (matrix[i][j] != '\0')
 		{
-			swipe = find_swipe(matrix, binfo.obstacle, j, i, 0, &list);
-			if (swipe > snapshot.swipe)
+			if (list_contains(list, j, i) == 0)
 			{
-				snapshot.x = j;
-				snapshot.y = i;
-				snapshot.swipe = swipe;
+				swipe = find_swipe(matrix, binfo.obstacle, j, i, 0, &list);
+				if (swipe > snapshot.swipe)
+				{
+					snapshot.x = j;
+					snapshot.y = i;
+					snapshot.swipe = swipe;
+				}
 			}
-			j = j + 2 + swipe;
+			j++;
 		}
 		i++;
 	}
 
 	print_list(list);
+
 	return (snapshot);
 }
 
